@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/product.dart';
 import '../services/product_service.dart';
+import '../widgets/product_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -158,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Liste des produits qui occupe le reste de l'écran
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refresh,
@@ -177,70 +176,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   final product = _products[index];
-                  return GestureDetector(
+                  return ProductCard(
+                    product: product,
                     onTap: () async {
                       final result = await context.push('/product/${product.id}');
                       if (result == true) {
                         _resetAndLoad();
                       }
                     },
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      elevation: 4,
-                      color: Colors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16),
-                              ),
-                              child: Image.network(
-                                product.image,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.broken_image, size: 60),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              product.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                            child: Text(
-                              '${product.price.toStringAsFixed(2)} €',
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.redAccent),
-                              onPressed: () => _deleteProduct(product.id!),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    onDelete: () => _deleteProduct(product.id!),
                   );
                 },
               ),
@@ -260,5 +204,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
